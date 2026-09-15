@@ -10,7 +10,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const notesRef = collection(db, "dailyNotes");
+// Lazily built (not at module scope) because `db` is null during server-side
+// prerendering — see the comment in lib/firebase.js.
+function notesRef() {
+  return collection(db, "dailyNotes");
+}
 
 // One note per user per day, enforced by using a deterministic doc id
 // (Firestore has no multi-field unique constraint like SQL's
@@ -56,7 +60,7 @@ export async function deleteNote(uid, dateKey) {
  * "Journal entries this month" analytics stat. */
 export function subscribeNoteDatesInRange(uid, startKey, endKey, callback) {
   const q = query(
-    notesRef,
+    notesRef(),
     where("uid", "==", uid),
     where("noteDate", ">=", startKey),
     where("noteDate", "<=", endKey)

@@ -13,10 +13,14 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const routinesRef = collection(db, "routines");
+// Lazily built (not at module scope) because `db` is null during server-side
+// prerendering — see the comment in lib/firebase.js.
+function routinesRef() {
+  return collection(db, "routines");
+}
 
 export function subscribeRoutines(uid, callback) {
-  const q = query(routinesRef, where("uid", "==", uid));
+  const q = query(routinesRef(), where("uid", "==", uid));
   return onSnapshot(q, (snapshot) => {
     const routines = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     // Newest first is confusing for a checklist people check daily —
@@ -30,7 +34,7 @@ export async function createRoutine(
   uid,
   { name, color, schedule, type = "checkbox", target = 1, unit = "", icon = "", description = "" }
 ) {
-  return addDoc(routinesRef, {
+  return addDoc(routinesRef(), {
     uid,
     name,
     color,
