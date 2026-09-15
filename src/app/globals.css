@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  /* Light theme (default / original palette) — channel triples so
+     Tailwind's `rgb(var(--x) / <alpha-value>)` opacity modifiers work. */
+  --color-paper: 251 247 240; /* #FBF7F0 */
+  --color-paper-dark: 241 234 217; /* #F1EAD9 */
+  --color-surface: 255 255 255; /* card/input surfaces, was raw white */
+  --color-ink: 35 40 43; /* #23282B */
+  --color-ink-soft: 91 102 114; /* #5B6672 */
+  --color-accent: 31 111 92; /* #1F6F5C — overridden live by ThemeProvider */
+  --color-accent-soft: 44 143 118; /* #2C8F76 */
+  --color-gold: 232 183 93; /* #E8B75D */
+  --color-line: 228 220 201; /* #E4DCC9 */
+}
+
+.dark {
+  --color-paper: 22 24 27;
+  --color-paper-dark: 30 33 37;
+  --color-surface: 39 43 48;
+  --color-ink: 237 238 240;
+  --color-ink-soft: 156 163 175;
+  --color-accent: 62 168 143;
+  --color-accent-soft: 82 189 163;
+  --color-gold: 240 197 122;
+  --color-line: 58 62 69;
+}
+
+body {
+  background-color: rgb(var(--color-paper));
+  color: rgb(var(--color-ink));
+}
+
+/* Smooth theme transitions (Settings > Appearance), skipped for anyone
+   who prefers reduced motion via the rule below. */
+body,
+[class*="bg-"],
+[class*="text-"],
+[class*="border-"] {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+/* Visible keyboard focus ring everywhere, instead of removing outlines.
+   Uses the live accent color so custom accents apply to focus states too. */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-accent));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
