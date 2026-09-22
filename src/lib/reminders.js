@@ -11,7 +11,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const remindersRef = collection(db, "reminders");
+// Lazily built (not at module scope) because `db` is null during server-side
+// prerendering — see the comment in lib/firebase.js.
+function remindersRef() {
+  return collection(db, "reminders");
+}
 
 export const OFFSET_OPTIONS = [
   { value: 0, label: "At scheduled time" },
@@ -30,7 +34,7 @@ export const REPEAT_TYPES = [
 ];
 
 export function subscribeReminders(uid, callback) {
-  const q = query(remindersRef, where("uid", "==", uid));
+  const q = query(remindersRef(), where("uid", "==", uid));
   return onSnapshot(q, (snapshot) => {
     const reminders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     reminders.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
@@ -39,7 +43,7 @@ export function subscribeReminders(uid, callback) {
 }
 
 export async function createReminder(uid, data) {
-  return addDoc(remindersRef, {
+  return addDoc(remindersRef(), {
     uid,
     routineId: data.routineId,
     routineName: data.routineName,

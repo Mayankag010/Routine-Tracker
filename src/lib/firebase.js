@@ -11,16 +11,25 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Avoid re-initializing the app on hot reloads
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Firebase is only ever used from client components (auth/db reads and
+// writes all happen in effects and event handlers, never during render).
+// Next.js still evaluates this module on the server when prerendering
+// those pages though, and getAuth()/getFirestore() validate the config
+// immediately — so on the server (or if the NEXT_PUBLIC_FIREBASE_* env
+// vars aren't set yet) we skip initialization entirely instead of
+// crashing the build.
+const canInitialize = typeof window !== "undefined" && Boolean(firebaseConfig.apiKey);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Avoid re-initializing the app on hot reloads
+const app = canInitialize ? (getApps().length ? getApp() : initializeApp(firebaseConfig)) : null;
+
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
 
 // Cache Firestore data on-device (IndexedDB) so reads work offline and
 // writes (like ticking a routine) queue locally and sync automatically
 // once the connection comes back. Only runs in the browser, and only once.
-if (typeof window !== "undefined") {
+if (db) {
   enableIndexedDbPersistence(db).catch((err) => {
     if (err.code === "failed-precondition") {
       // Multiple tabs open — persistence can only run in one at a time.

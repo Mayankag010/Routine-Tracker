@@ -8,7 +8,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const sessionsRef = collection(db, "timerSessions");
+// Lazily built (not at module scope) because `db` is null during server-side
+// prerendering — see the comment in lib/firebase.js.
+function sessionsRef() {
+  return collection(db, "timerSessions");
+}
 
 /**
  * Logs one completed (or meaningfully-stopped) timer session. This is the
@@ -27,7 +31,7 @@ export async function logTimerSession(
   uid,
   { timerType, durationSeconds, startedAt, endedAt, routineId = null, routineName = "" }
 ) {
-  return addDoc(sessionsRef, {
+  return addDoc(sessionsRef(), {
     uid,
     timerType, // "countdown" | "stopwatch" | "pomodoro-focus"
     durationSeconds: Math.max(0, Math.round(durationSeconds || 0)),
@@ -46,7 +50,7 @@ export async function logTimerSession(
  * Firestore index just to show a short "Recent Sessions" list.
  */
 export function subscribeRecentSessions(uid, callback, max = 20) {
-  const q = query(sessionsRef, where("uid", "==", uid));
+  const q = query(sessionsRef(), where("uid", "==", uid));
   return onSnapshot(
     q,
     (snapshot) => {
@@ -72,7 +76,7 @@ export function subscribeRecentSessions(uid, callback, max = 20) {
  * here, since onSnapshot's error handler falls back to callback([])).
  */
 export function subscribeSessionsSince(uid, sinceIso, callback) {
-  const q = query(sessionsRef, where("uid", "==", uid));
+  const q = query(sessionsRef(), where("uid", "==", uid));
   return onSnapshot(
     q,
     (snapshot) => {

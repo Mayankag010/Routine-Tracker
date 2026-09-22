@@ -11,6 +11,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // auth is null when the NEXT_PUBLIC_FIREBASE_* env vars aren't
+    // configured — nothing to subscribe to, so just stop loading.
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     // Firebase calls this every time the login state changes
     // (on load, on sign in, on sign out) so the whole app always
     // knows who's logged in without us checking manually.
