@@ -31,10 +31,7 @@ export function WeatherWidget() {
         {state.status === "loading" && <p className="text-sm text-inkSoft">Loading weather…</p>}
         {state.status === "error" && <p className="text-sm text-inkSoft">Weather unavailable</p>}
         {state.status === "ready" && (
-          <>
-            <p className="font-display text-2xl tabular-nums">{state.tempC}°C</p>
-            <p className="text-xs text-inkSoft">{state.city}</p>
-          </>
+          <p className="font-display text-2xl tabular-nums">{state.tempC}°C</p>
         )}
       </div>
       <button

@@ -100,7 +100,7 @@ function DashboardContent() {
 
         {routines !== null && (
           <div className="mt-8">
-            <TimerQuickCard />
+            <TimerQuickCard routines={todaysRoutines?.filter((r) => r.type === "duration") || []} />
           </div>
         )}
 
